@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WildberryEyeZero Camera App</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        function refreshImage() {
+            fetch('{{ url_for("latest_image") }}')
+                .then(response => response.text())
+                .then(data => {
+                    const imgElement = document.getElementById('latestImage');
+                    imgElement.src = data;
+                })
+                .catch(console.error);
+        }
+        // Refresh the image every second
+        setInterval(refreshImage, 1000);
+    </script>
+</head>
+<body>
+    <h1>WildberryEyeZero Camera App</h1>
+
+    <form method="post" action="/">
+        <label for="path">Save Path:</label>
+        <input type="text" id="path" name="path" value="{{ path }}">
+        <br>
+        <label for="frequency">Capture Frequency (seconds):</label>
+        <input type="number" id="frequency" name="frequency" value="{{ frequency }}" min="1">
+        <br>
+        <button type="submit">Save Settings</button>
+    </form>
+
+    <br>
+
+    {% if image_file %}
+    <div>
+        <h2>Most Recent Image:</h2>
+        <img
+            id="latestImage"
+            src="{{ url_for('static', filename='images/' + image_file) }}"
+            alt="Most recent captured image"
+            style="max-width: 100%;"
+        >
+    </div>
+    {% else %}
+    <p>No images captured yet.</p>
+    {% endif %}
+</body>
+</html>
