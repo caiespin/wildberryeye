@@ -12,7 +12,11 @@ cd wildberryeyezero
 # 2. Install OS-level dependencies
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-pip libcamera-apps libcamera-dev
+sudo apt install -y python3 python3-pip libcamera-apps libcamera-dev python3-libcamera python3-kms++
+sudo apt install imx500-all imx500-tools
+sudo apt install python3-opencv python3-munkres
+sudo apt install libcap-dev python3-dev
+sudo reboot
 ```
 
 # 3. Install Picamera2 from source
@@ -28,6 +32,11 @@ cd ..
 pip3 install --upgrade pip
 pip3 install -r backend/requirements.txt
 ```
+or 
+```bash
+sudo apt install -y python3-pip python3-flask python3-numpy python3-pillow
+```
+
 # 5. Install & start the WildberryEyeZero service
 ```bash
 chmod +x setup/setup_flask_service.sh
