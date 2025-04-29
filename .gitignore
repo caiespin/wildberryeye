@@ -1,0 +1,25 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Node modules
+node_modules/
+
+# Logs
+logs/
+
+# IDE/editor settings
+.vscode/
+
+# Ignore all generated detection images
+frontend/images/*
+
+# Ignore extracted IMX500 model artifacts
+backend/models/*.onnx
+backend/models/*.pbtxt
+backend/models/*.json
+backend/models/*.xml
+backend/models/*.zip
+
+# Track only the .rpk model package
+!backend/models/*.rpk
