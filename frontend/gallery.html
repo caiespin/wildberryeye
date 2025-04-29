@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All Detections - WildberryEyeZero</title>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+</head>
+<body>
+  <h1>All Detections</h1>
+  <p><a href="{{ url_for('index') }}">&larr; Back to Home</a></p>
+  {% if images %}
+    <div class="mosaic">
+      {% for img in images %}
+        <div class="tile">
+          <a
+            href="{{ url_for('static', filename='images/' + img) }}"
+            download
+          >
+            <img
+              src="{{ url_for('static', filename='images/' + img) }}"
+              alt="{{ img }}"
+            >
+          </a>
+          <p>{{ img }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No detections to show.</p>
+  {% endif %}
+</body>
+</html>

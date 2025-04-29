@@ -1,50 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>WildberryEyeZero Camera App</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
-    <script>
-        function refreshImage() {
-            fetch('{{ url_for("latest_image") }}')
-                .then(response => response.text())
-                .then(data => {
-                    const imgElement = document.getElementById('latestImage');
-                    imgElement.src = data;
-                })
-                .catch(console.error);
-        }
-        // Refresh the image every second
-        setInterval(refreshImage, 1000);
-    </script>
+  <meta charset="UTF-8">
+  <title>WildberryEyeZero Detector</title>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+  >
+  <script>
+    async function toggle(run) {
+      await fetch(`/api/${run ? 'start' : 'stop'}`, { method: 'POST' });
+      document.getElementById('status').textContent =
+        run ? 'Running' : 'Stopped';
+    }
+
+    function reloadImage() {
+      const img = document.getElementById('latestImage');
+      img.src = '{{ url_for("latest_image") }}?t=' + Date.now();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('btnStart').onclick = () => toggle(true);
+      document.getElementById('btnStop').onclick  = () => toggle(false);
+      reloadImage();
+      setInterval(reloadImage, 1000);
+    });
+  </script>
 </head>
 <body>
-    <h1>WildberryEyeZero Camera App</h1>
+  <h1>WildberryEyeZero Detector</h1>
+  <p>Status: <span id="status">Stopped</span></p>
+  <button id="btnStart">Start Detection</button>
+  <button id="btnStop">Stop Detection</button>
 
-    <form method="post" action="/">
-        <label for="path">Save Path:</label>
-        <input type="text" id="path" name="path" value="{{ path }}">
-        <br>
-        <label for="frequency">Capture Frequency (seconds):</label>
-        <input type="number" id="frequency" name="frequency" value="{{ frequency }}" min="1">
-        <br>
-        <button type="submit">Save Settings</button>
-    </form>
-
-    <br>
-
-    {% if image_file %}
+  <h2>Most Recent Detection</h2>
+  {% if newest %}
     <div>
-        <h2>Most Recent Image:</h2>
-        <img
-            id="latestImage"
-            src="{{ url_for('static', filename='images/' + image_file) }}"
-            alt="Most recent captured image"
-            style="max-width: 100%;"
-        >
+      <img
+        id="latestImage"
+        src="{{ url_for('latest_image') }}"
+        alt="latest detection"
+        style="max-width:100%;border:1px solid #ccc;padding:5px;"
+      >
+      <p>
+        <a
+          href="{{ url_for('static', filename='images/' + newest) }}"
+          download
+        >Download raw image</a>
+      </p>
     </div>
-    {% else %}
-    <p>No images captured yet.</p>
-    {% endif %}
+  {% else %}
+    <p>No detections yet.</p>
+  {% endif %}
+
+  <p><a href="{{ url_for('gallery') }}">View All Detections</a></p>
 </body>
 </html>

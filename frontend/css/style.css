@@ -64,3 +64,28 @@ form button:hover {
     height: auto;
     border-radius: 4px;
 }
+
+/* Gallery mosaic */
+.mosaic {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    padding: 10px;
+  }
+  .tile {
+    border: 1px solid #ddd;
+    padding: 5px;
+    text-align: center;
+  }
+  .tile img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: 5px;
+  }
+  .tile p {
+    font-size: 0.85em;
+    margin: 0;
+    word-break: break-all;
+  }
+  
