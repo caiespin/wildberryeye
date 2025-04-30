@@ -7,6 +7,8 @@ import argparse
 import io
 
 from flask import Flask, render_template, jsonify, send_file
+from flask import request, send_file
+import zipfile
 from picamera2 import Picamera2, MappedArray
 from picamera2.devices import IMX500
 from picamera2.devices.imx500 import NetworkIntrinsics, postprocess_nanodet_detection
@@ -26,11 +28,11 @@ SAVE_RAW = args.save_raw
 
 # ─── Configuration ─────────────────────────────────────────────────────────────
 
-BASE_DIR     = os.path.abspath(os.path.dirname(__file__))
-FRONTEND     = os.path.join(BASE_DIR, '..', 'frontend')
-MODELS_DIR   = os.path.join(BASE_DIR, 'models')
-MODEL_PATH   = os.path.join(MODELS_DIR, 'best_imx_model.rpk')
-OUTPUT_DIR   = os.path.join(FRONTEND, 'images')
+BASE_DIR   = os.path.abspath(os.path.dirname(__file__))
+FRONTEND   = os.path.join(BASE_DIR, '..', 'frontend')
+MODELS_DIR = os.path.join(BASE_DIR, 'models')
+MODEL_PATH = os.path.join(MODELS_DIR, 'best_imx_model.rpk')
+OUTPUT_DIR = os.path.join(FRONTEND, 'images')
 
 # Detection thresholds
 THRESHOLD      = 0.55
@@ -65,7 +67,7 @@ if intrinsics is None:
     intrinsics.task = "object detection"
 intrinsics.update_with_defaults()
 
-# Load labels so intrinsics.labels isn't None
+# Load labels explicitly
 labels_file = os.path.join(MODELS_DIR, 'labels.txt')
 if os.path.exists(labels_file):
     with open(labels_file, 'r') as f:
@@ -73,26 +75,35 @@ if os.path.exists(labels_file):
 else:
     raise FileNotFoundError("labels.txt not found in models folder")
 
+# Create Picamera2 instance & config—do not start yet
 picam2 = Picamera2(imx500.camera_num)
 config = picam2.create_preview_configuration(
     main={"format": "RGB888"},
     controls={"FrameRate": intrinsics.inference_rate},
     buffer_count=12
 )
-picam2.start(config, show_preview=False)
-if intrinsics.preserve_aspect_ratio:
-    imx500.set_auto_aspect_ratio()
+
+# ─── Camera Startup Thread ─────────────────────────────────────────────────────
+
+def camera_init():
+    """Load firmware and start the camera—may take several minutes."""
+    picam2.start(config, show_preview=False)
+    if intrinsics.preserve_aspect_ratio:
+        imx500.set_auto_aspect_ratio()
+
+threading.Thread(target=camera_init, daemon=True).start()
 
 # ─── Shared State ───────────────────────────────────────────────────────────────
 
 running = False
 lock = threading.Lock()
-_last_detections = []   # most recent detections
-_last_file = None       # most recent saved filename
+_last_detections = []  # most recent detections
+_last_file = None      # most recent saved filename
 
 # ─── Detection Helpers ─────────────────────────────────────────────────────────
 
 def parse_detections(metadata):
+    """Run on-sensor inference and return detections list."""
     outputs = imx500.get_outputs(metadata, add_batch=True)
     if outputs is None:
         return []
@@ -123,42 +134,36 @@ def parse_detections(metadata):
     return dets
 
 def detection_worker():
+    """Background detection loop: cheap metadata-only, full capture on hits."""
     global running, _last_detections, _last_file
     while True:
         if not running:
             time.sleep(0.1)
             continue
 
-        # 1. Metadata-only inference (fast)
         metadata = picam2.capture_metadata()
         dets = parse_detections(metadata)
-
         if dets:
-            # 2. Full frame capture only on hits
             req = picam2.capture_request()
             with MappedArray(req, "main") as m:
                 img = m.array.copy()
             req.release()
 
-            # 3. Optionally annotate for saving
             if not SAVE_RAW:
                 for x, y, w, h, label, score in dets:
                     cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 2)
                     cv2.putText(img, f"{label} {score:.2f}",
-                                (x, y-5), cv2.FONT_HERSHEY_SIMPLEX,
-                                0.5, (0,255,0), 2)
+                                (x, y-5),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
 
-            # 4. Save file
             ts = time.strftime("%Y%m%d-%H%M%S")
             fname = f"detection_{ts}.jpg"
             path = os.path.join(OUTPUT_DIR, fname)
             cv2.imwrite(path, img)
 
-            # 5. Update globals
             _last_detections = dets
             _last_file = fname
 
-# start worker thread
 threading.Thread(target=detection_worker, daemon=True).start()
 
 # ─── Flask Routes ─────────────────────────────────────────────────────────────
@@ -170,7 +175,8 @@ def index():
 @app.route('/gallery')
 def gallery():
     files = sorted(
-        [f for f in os.listdir(OUTPUT_DIR) if f.startswith("detection_")],
+        [f for f in os.listdir(OUTPUT_DIR)
+         if f.startswith("detection_") or f.startswith("manual_")],
         key=lambda fn: os.path.getmtime(os.path.join(OUTPUT_DIR, fn)),
         reverse=True
     )
@@ -194,9 +200,63 @@ def api_stop():
 def api_latest_filename():
     return jsonify(filename=_last_file)
 
+@app.route('/api/capture', methods=['POST'])
+def api_capture():
+    """Force a raw capture (manual) and update the last-file."""
+    global _last_file, _last_detections
+    req = picam2.capture_request()
+    with MappedArray(req, "main") as m:
+        img = m.array.copy()
+    req.release()
+
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    fname = f"manual_{ts}.jpg"
+    path = os.path.join(OUTPUT_DIR, fname)
+    cv2.imwrite(path, img)
+
+    _last_file = fname
+    _last_detections = []
+    return jsonify(filename=fname)
+
+@app.route('/api/delete-images', methods=['POST'])
+def api_delete_images():
+    data = request.get_json(force=True)
+    names = data.get('filenames', [])
+    success = []
+    failed = []
+    for fname in names:
+        path = os.path.join(OUTPUT_DIR, fname)
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+                success.append(fname)
+            except Exception:
+                failed.append(fname)
+        else:
+            failed.append(fname)
+    return jsonify(deleted=success, failed=failed)
+
+@app.route('/api/download-images', methods=['POST'])
+def api_download_images():
+    data = request.get_json(force=True)
+    names = data.get('filenames', [])
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w') as z:
+        for fname in names:
+            path = os.path.join(OUTPUT_DIR, fname)
+            if os.path.exists(path):
+                z.write(path, arcname=fname)
+    buf.seek(0)
+    return send_file(
+        buf,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name='detections.zip'
+    )
+
 @app.route('/latest-image')
 def latest_image():
-    """Draw bounding boxes in red on the most recent raw frame and stream as JPEG."""
+    """Stream the most recent frame with detection boxes drawn in red."""
     if not _last_file:
         return ('', 204)
     path = os.path.join(OUTPUT_DIR, _last_file)
@@ -204,8 +264,7 @@ def latest_image():
     for x, y, w, h, label, score in _last_detections:
         cv2.rectangle(img, (x, y), (x+w, y+h), (0,0,255), 2)
         cv2.putText(img, f"{label} {score:.2f}",
-                    (x, y-5), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5, (0,0,255), 2)
+                    (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
     _, buf = cv2.imencode('.jpg', img)
     return send_file(
         io.BytesIO(buf.tobytes()),

@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>WildberryEyeZero Detector</title>
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
-  >
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script>
     async function toggle(run) {
       await fetch(`/api/${run ? 'start' : 'stop'}`, { method: 'POST' });
@@ -16,14 +13,27 @@
 
     function reloadImage() {
       const img = document.getElementById('latestImage');
-      img.src = '{{ url_for("latest_image") }}?t=' + Date.now();
+      img.src = "{{ url_for('latest_image') }}?t=" + Date.now();
+    }
+
+    async function captureNow() {
+      const res = await fetch('/api/capture', { method: 'POST' });
+      const { filename } = await res.json();
+      // update download link
+      const dl = document.getElementById('downloadLink');
+      dl.href = "{{ url_for('static', filename='images/') }}" + filename;
+      dl.textContent = `Download ${filename}`;
+      // then reload display
+      reloadImage();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btnStart').onclick = () => toggle(true);
-      document.getElementById('btnStop').onclick  = () => toggle(false);
+      document.getElementById('btnStart').onclick   = () => toggle(true);
+      document.getElementById('btnStop').onclick    = () => toggle(false);
+      document.getElementById('btnCapture').onclick = captureNow;
+      // refresh detection overlay every 5s
+      setInterval(reloadImage, 5000);
       reloadImage();
-      setInterval(reloadImage, 1000);
     });
   </script>
 </head>
@@ -32,6 +42,7 @@
   <p>Status: <span id="status">Stopped</span></p>
   <button id="btnStart">Start Detection</button>
   <button id="btnStop">Stop Detection</button>
+  <button id="btnCapture">Capture Now</button>
 
   <h2>Most Recent Detection</h2>
   {% if newest %}
@@ -44,9 +55,12 @@
       >
       <p>
         <a
+          id="downloadLink"
           href="{{ url_for('static', filename='images/' + newest) }}"
           download
-        >Download raw image</a>
+        >
+          Download {{ newest }}
+        </a>
       </p>
     </div>
   {% else %}

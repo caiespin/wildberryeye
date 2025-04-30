@@ -3,27 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <title>All Detections - WildberryEyeZero</title>
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
-  >
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script>
+    // Collect checked filenames
+    function getSelected() {
+      return Array.from(document.querySelectorAll('input.image-checkbox:checked'))
+                  .map(cb => cb.value);
+    }
+
+    // Batch delete
+    async function deleteSelected() {
+      const files = getSelected();
+      if (!files.length) return alert('No images selected');
+      if (!confirm(`Delete ${files.length} images?`)) return;
+      const res = await fetch('/api/delete-images', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({filenames: files})
+      });
+      const data = await res.json();
+      alert(`Deleted: ${data.deleted.join(', ')}`);
+      location.reload();
+    }
+
+    // Batch download
+    async function downloadSelected() {
+      const files = getSelected();
+      if (!files.length) return alert('No images selected');
+      const res = await fetch('/api/download-images', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({filenames: files})
+      });
+      if (!res.ok) return alert('Download failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'detections.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  </script>
 </head>
 <body>
   <h1>All Detections</h1>
-  <p><a href="{{ url_for('index') }}">&larr; Back to Home</a></p>
+  <p>
+    <a href="{{ url_for('index') }}">&larr; Back to Home</a>
+  </p>
+
+  <div>
+    <button onclick="deleteSelected()">Delete Selected</button>
+    <button onclick="downloadSelected()">Download Selected</button>
+  </div>
+
   {% if images %}
     <div class="mosaic">
       {% for img in images %}
         <div class="tile">
-          <a
-            href="{{ url_for('static', filename='images/' + img) }}"
-            download
-          >
+          <label>
+            <input type="checkbox" class="image-checkbox" value="{{ img }}">
             <img
               src="{{ url_for('static', filename='images/' + img) }}"
-              alt="{{ img }}"
-            >
-          </a>
+              alt="{{ img }}">
+          </label>
           <p>{{ img }}</p>
         </div>
       {% endfor %}
