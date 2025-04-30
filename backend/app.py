@@ -48,16 +48,6 @@ app = Flask(
 )
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# ─── Model Extraction ──────────────────────────────────────────────────────────
-
-if not os.path.exists(MODEL_PATH):
-    zip_path = os.path.join(MODELS_DIR, 'best_imx_model.zip')
-    if os.path.exists(zip_path):
-        with zipfile.ZipFile(zip_path, 'r') as z:
-            z.extractall(MODELS_DIR)
-    else:
-        raise FileNotFoundError(f"Model not found at {MODEL_PATH}")
-
 # ─── IMX500 + Picamera2 Initialization ────────────────────────────────────────
 
 imx500 = IMX500(MODEL_PATH)
