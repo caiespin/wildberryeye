@@ -101,7 +101,7 @@ sudo apt install -y \
 ## 2. Install Picamera2 from upstream
 ```bash
 cd ~
-git clone https://github.com/raspberrypi/picamera2
+git clone git@github.com:caiespin/picamera2.git
 cd picamera2
 pip3 install -e . --break-system-packages
 cd ..
