@@ -80,6 +80,16 @@ sudo apt install -y \
   python3-numpy \
   python3-opencv \
   python3-libcamera \
+  python3-pil \
+  python3-av \
+  python3-v4l2 \
+  python3-prctl \
+  python3-piexif \
+  python3-simplejpeg \
+  python3-pidng \
+  python3-jsonschema \
+  python3-libarchive-c \
+  python3-tqdm \
   libatlas-base-dev \
   libjpeg-dev \
   libcamera-apps \
@@ -117,10 +127,15 @@ Make the install-script executable
 chmod +x setup/setup_flask_service.sh
 ```
 Run it
-```bash
-sudo ./setup/setup_flask_service.sh wildberry_motion ~/wildberryeyezero/backend motion
-```
-or
  ```bash
-sudo ./setup/setup_flask_service.sh wildberry_motion ~/wildberryeyezero/backend motion --save-raw
+sudo setup/setup_flask_service.sh wildberry_motion ~/wildberryeyezero/backend motion --save-raw
+```
+
+## 6. Manage the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl status wildberry_motion
+sudo journalctl -u wildberry_motion -f
+sudo systemctl restart wildberry_motion
+sudo systemctl stop wildberry_motion
 ```
