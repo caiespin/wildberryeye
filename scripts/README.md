@@ -37,5 +37,6 @@ Output PNGs will appear in docs/images/wilberry_analysis/.
 # 4. Clean Up Short Logs
 To delete any cycles shorter than, say, 30 minutes:
 ```bash
-bash ~/scripts/clean_short_logs.sh 30
+chmod +x scripts/clean_short_logs.sh
+scripts/clean_short_logs.sh 30
 ```
