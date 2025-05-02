@@ -5,10 +5,42 @@
   <title>WildberryEyeZero Detector</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script>
+    let running = false;
+    let baselineSet = false;
+
+    function updateStatus(msgOverride) {
+      const statusEl = document.getElementById('status');
+      if (msgOverride) {
+        statusEl.textContent = msgOverride;
+        return;
+      }
+      if (!running) {
+        statusEl.textContent = 'Stopped';
+      } else if (!baselineSet) {
+        statusEl.textContent = 'Armed – waiting for baseline';
+      } else {
+        statusEl.textContent = 'Detecting…';
+      }
+    }
+
     async function toggle(run) {
       await fetch(`/api/${run ? 'start' : 'stop'}`, { method: 'POST' });
-      document.getElementById('status').textContent =
-        run ? 'Running' : 'Stopped';
+      running = run;
+      updateStatus();
+    }
+
+    async function setBaseline() {
+      if (!running) {
+        alert('Please click “Start Detection” first.');
+        return;
+      }
+      const res = await fetch('/api/set-baseline', { method: 'POST' });
+      if (res.ok) {
+        baselineSet = true;
+        updateStatus();
+      } else {
+        updateStatus('Error setting baseline');
+      }
     }
 
     function reloadImage() {
@@ -19,19 +51,18 @@
     async function captureNow() {
       const res = await fetch('/api/capture', { method: 'POST' });
       const { filename } = await res.json();
-      // update download link
       const dl = document.getElementById('downloadLink');
       dl.href = "{{ url_for('static', filename='images/') }}" + filename;
       dl.textContent = `Download ${filename}`;
-      // then reload display
       reloadImage();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('btnStart').onclick   = () => toggle(true);
-      document.getElementById('btnStop').onclick    = () => toggle(false);
-      document.getElementById('btnCapture').onclick = captureNow;
-      // refresh detection overlay every 5s
+      document.getElementById('btnStart').onclick    = () => toggle(true);
+      document.getElementById('btnStop').onclick     = () => toggle(false);
+      document.getElementById('btnBaseline').onclick = setBaseline;
+      document.getElementById('btnCapture').onclick  = captureNow;
+      updateStatus();
       setInterval(reloadImage, 5000);
       reloadImage();
     });
@@ -40,9 +71,11 @@
 <body>
   <h1>WildberryEyeZero Detector</h1>
   <p>Status: <span id="status">Stopped</span></p>
+
   <button id="btnStart">Start Detection</button>
   <button id="btnStop">Stop Detection</button>
   <button id="btnCapture">Capture Now</button>
+  <button id="btnBaseline">Set Baseline Frame</button>
 
   <h2>Most Recent Detection</h2>
   {% if newest %}
@@ -68,5 +101,6 @@
   {% endif %}
 
   <p><a href="{{ url_for('gallery') }}">View All Detections</a></p>
+  <p><a href="{{ url_for('index') }}">Back to Home</a></p>
 </body>
 </html>
