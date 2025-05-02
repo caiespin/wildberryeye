@@ -7,6 +7,7 @@ node_modules/
 
 # Logs
 logs/
+/battery_logger.log
 
 # IDE/editor settings
 .vscode/
