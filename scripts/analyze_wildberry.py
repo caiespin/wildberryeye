@@ -10,7 +10,7 @@ from scipy.stats import gaussian_kde
 # Paths relative to scripts/
 ROOT_DIR     = os.path.dirname(__file__)
 LOG_DIR      = os.path.join(ROOT_DIR, '..', 'logs', 'wildberry_logs')
-ANALYSIS_DIR = os.path.join(ROOT_DIR, '..', 'docs', 'images', 'wilberry_analysis')
+ANALYSIS_DIR = os.path.join(ROOT_DIR, '..', 'docs', 'images', 'wildberry_analysis')
 os.makedirs(ANALYSIS_DIR, exist_ok=True)
 
 # Parse boot time from filename
