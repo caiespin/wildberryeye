@@ -28,45 +28,6 @@ mv network.rpk best_imx_model.rpk
 cd ../..
 ```
 
-## 4. Install OS-level dependencies
-```bash
-sudo apt update
-sudo apt install -y python3 python3-pip libcamera-apps libcamera-dev python3-libcamera python3-kms++
-sudo apt install imx500-all imx500-tools
-sudo apt install python3-opencv python3-munkres
-sudo apt install libcap-dev python3-dev
-sudo reboot
-```
-
-## 5. Install Picamera2 from source
-```bash
-git clone https://github.com/raspberrypi/picamera2
-cd picamera2
-pip3 install -e . --break-system-packages
-cd ..
-```
-
-## 6. Install Python requirements
-```bash
-pip3 install --upgrade pip
-pip3 install -r backend/requirements.txt
-```
-or 
-```bash
-sudo apt install -y python3-pip python3-flask python3-numpy python3-pillow
-```
-
-## 7. Install & start the WildberryEyeZero service
-```bash
-chmod +x setup/setup_flask_service.sh
-./setup/setup_flask_service.sh wildberryeyezero "$(pwd)/backend"
-```
-
-## 8. Verify service status
-```bash
-sudo systemctl status wildberryeyezero
-```
-
 # Setup Instructions for WildberryEyeZero Object Detection Mode
 
 Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
@@ -121,6 +82,49 @@ cd wildberryeye
 git pull origin main
 ```
 
+## 4. Verify model files are in place
+```bash
+cd ~
+git clone git@github.com:caiespin/wildberryeye.git
+cd wildberryeye
+git pull origin main
+```
+
+## 5. Run the server manually in object‑detection mode
+```bash
+cd src/wildberryeyezero/backend
+python3 app.py --mode object --save-raw
+```
+Without --save-raw: saves frames with bounding‑box annotations.
+
+With --save-raw: saves raw (unannotated) frames.
+
+Then browse to http://<pi‑ip>:5000 to confirm the live object‑detection UI.
+
+## 6. Install as a systemd service
+Make the install-script executable
+```bash
+cd ~/wildberryeye
+chmod +x setup/setup_flask_service.sh
+```
+Run it
+ ```bash
+# Annotated object mode:
+sudo setup/setup_flask_service.sh wildberry_object ~/wildberryeye/src/wildberryeyezero/backend object
+
+# Raw (no boxes) object mode:
+sudo setup/setup_flask_service.sh wildberry_object_raw ~/wildberryeye/src/wildberryeyezero/backend object --save-raw
+```
+
+## 7. Manage the service
+```bash
+sudo systemctl daemon-reload
+sudo systemctl status wildberry_object_raw       # or wildberry_object
+sudo journalctl -u wildberry_object_raw -f      # live logs
+sudo systemctl restart wildberry_object_raw      # apply changes
+sudo systemctl stop    wildberry_object_raw
+```
+
 # Setup Instructions for WildberryEyeZero Motion Detection Mode
 
 Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
@@ -144,13 +148,18 @@ sudo apt install -y \
   python3-jsonschema \
   python3-libarchive-c \
   python3-tqdm \
+  python3-munkres \
+  python3-dev \
   libatlas-base-dev \
   libjpeg-dev \
   libcamera-apps \
   libcamera-dev \
   libcap-dev \
+  imx500-all \
+  imx500-tools \
   build-essential \
   git
+sudo reboot
 ```
 ## 2. Install Picamera2 from upstream
 ```bash
@@ -175,25 +184,32 @@ cd src/wildberryeyezero/backend
 # Motion detection (works with V2 or IMX500 camera):
 python3 app.py --mode motion --save-raw
 ```
+Without --save-raw: saves frames with bounding‑box annotations.
+
+With --save-raw: saves raw (unannotated) frames.
+
+Then browse to http://<pi‑ip>:5000 to confirm the live object‑detection UI.
 
 ## 5. Install as a systemd service
 Make the install-script executable
 ```bash
+cd ~/wildberryeye
 chmod +x setup/setup_flask_service.sh
 ```
 Run it
  ```bash
-# For motion detection (V2 module or AI‑camera):
-sudo setup/setup_flask_service.sh wildberry_motion \
-     ~/wildberryeye/src/wildberryeyezero/backend \
-     motion --save-raw
+# Annotated motion (with boxes):
+sudo setup/setup_flask_service.sh wildberry_motion ~/wildberryeye/src/wildberryeyezero/backend motion
+
+# Raw motion (no boxes):
+sudo setup/setup_flask_service.sh wildberry_motion_raw ~/wildberryeye/src/wildberryeyezero/backend motion --save-raw
 ```
 
 ## 6. Manage the service
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl status wildberry_motion
-sudo journalctl -u wildberry_motion -f
-sudo systemctl restart wildberry_motion
-sudo systemctl stop wildberry_motion
+sudo systemctl status wildberry_motion_raw      # or wildberry_motion
+sudo journalctl -u wildberry_motion_raw -f      # live logs
+sudo systemctl restart wildberry_motion_raw     # apply changes
+sudo systemctl stop    wildberry_motion_raw
 ```
