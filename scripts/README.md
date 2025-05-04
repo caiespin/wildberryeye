@@ -17,8 +17,8 @@ crontab -e
 ```
 Add this line, using environment variables so it works regardless of your username or home directory:
 ```bash
-# Start battery logger at reboot (adjust path if you cloned elsewhere)
-@reboot /usr/bin/env python3 $HOME/wildberryeyezero/scripts/battery_logger_txt.py >> $HOME/wildberryeyezero/battery_logger.log 2>&1 &
+# Start battery logger at reboot
+@reboot /usr/bin/env python3 $HOME/wildberryeye/scripts/battery_logger_txt.py >> $HOME/wildberryeye/logs/battery_logger.log 2>&1 &
 ```
 Save and exit. This will launch the logger script in the background on startup, writing per-boot telemetry into logs/wildberry_logs/ inside the repo.
 
