@@ -13,7 +13,8 @@ logs/
 .vscode/
 
 # Ignore all generated detection images
-frontend/images/*
+src/wildberryeyezero/frontend/images/*
+src/wildberryeyezero/backend/models/*
 
 # Ignore extracted IMX500 model artifacts
 backend/models/*.onnx
