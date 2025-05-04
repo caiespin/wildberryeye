@@ -67,7 +67,7 @@ chmod +x setup/setup_flask_service.sh
 sudo systemctl status wildberryeyezero
 ```
 
-# Setup Instructions for WildberryEyeZero Motion Detection Mode
+# Setup Instructions for WildberryEyeZero Object Detection Mode
 
 Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
 
