@@ -5,6 +5,7 @@ import time
 import zipfile
 import argparse
 import io
+from datetime import datetime  # NEW
 
 from flask import Flask, render_template, jsonify, send_file, request
 from picamera2 import Picamera2, MappedArray
@@ -15,46 +16,30 @@ import numpy as np
 
 # ─── CLI Arguments ──────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="WildberryEyeZero Detector")
-parser.add_argument(
-    "--save-raw",
-    action="store_true",
-    help="Save raw frames (no bounding boxes). Default saves annotated frames."
-)
-parser.add_argument(
-    "--mode",
-    choices=["object", "motion"],
-    default="object",
-    help="Operation mode: 'object' for AI-camera object detection; 'motion' for motion detection on any camera."
-)
+parser.add_argument("--save-raw", action="store_true", help="Save raw frames (no bounding boxes). Default saves annotated frames.")
+parser.add_argument("--mode", choices=["object", "motion"], default="object", help="Operation mode: 'object' for AI-camera object detection; 'motion' for motion detection on any camera.")
 args = parser.parse_args()
 SAVE_RAW = args.save_raw
 MODE = args.mode
 
 # ─── Configuration ──────────────────────────────────────────────────────────────
-BASE_DIR   = os.path.abspath(os.path.dirname(__file__))
-FRONTEND   = os.path.join(BASE_DIR, '..', 'frontend')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+FRONTEND = os.path.join(BASE_DIR, '..', 'frontend')
 MODELS_DIR = os.path.join(BASE_DIR, 'models')
 MODEL_PATH = os.path.join(MODELS_DIR, 'best_imx_model.rpk')
 OUTPUT_DIR = os.path.join(FRONTEND, 'images')
 
-# Detection thresholds
-THRESHOLD      = 0.55
-IOU            = 0.65
+THRESHOLD = 0.55
+IOU = 0.65
 MAX_DETECTIONS = 10
-# Motion thresholds
-MOTION_THRESH  = 25   # pixel difference threshold
-MIN_AREA       = 500  # minimum contour area to count as motion
+MOTION_THRESH = 25
+MIN_AREA = 500
 
 # ─── Flask App Setup ───────────────────────────────────────────────────────────
-app = Flask(
-    __name__,
-    static_folder=FRONTEND,
-    template_folder=FRONTEND
-)
+app = Flask(__name__, static_folder=FRONTEND, template_folder=FRONTEND)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ─── Camera & Model Initialization ─────────────────────────────────────────────
-# Only init IMX500 in object mode
 imx500 = None
 intrinsics = None
 if MODE == "object":
@@ -62,7 +47,6 @@ if MODE == "object":
     intrinsics = imx500.network_intrinsics or NetworkIntrinsics()
     intrinsics.task = "object detection"
     intrinsics.update_with_defaults()
-    # load labels
     labels_file = os.path.join(MODELS_DIR, 'labels.txt')
     if os.path.exists(labels_file):
         with open(labels_file, 'r') as f:
@@ -70,7 +54,6 @@ if MODE == "object":
     else:
         raise FileNotFoundError("labels.txt not found in models folder")
 
-# Initialize Picamera2
 camera_index = imx500.camera_num if imx500 else 0
 picam2 = Picamera2(camera_index)
 config = picam2.create_preview_configuration(
@@ -83,6 +66,7 @@ def camera_init():
     picam2.start(config, show_preview=False)
     if MODE == "object" and intrinsics.preserve_aspect_ratio:
         imx500.set_auto_aspect_ratio()
+
 threading.Thread(target=camera_init, daemon=True).start()
 
 # ─── Shared State ───────────────────────────────────────────────────────────────
@@ -90,8 +74,6 @@ running = False
 lock = threading.Lock()
 _last_detections = []
 _last_file = None
-
-# Motion baseline state
 prev_gray = None
 baseline_set = False
 
@@ -121,8 +103,7 @@ def parse_detections(metadata):
     dets = []
     for (x, y, w, h), score, cat in zip(boxes, scores, classes):
         if score > THRESHOLD:
-            dets.append((int(x), int(y), int(w), int(h),
-                         intrinsics.labels[int(cat)], float(score)))
+            dets.append((int(x), int(y), int(w), int(h), intrinsics.labels[int(cat)], float(score)))
     return dets
 
 # ─── Detection Worker ───────────────────────────────────────────────────────────
@@ -133,7 +114,6 @@ def detection_worker():
             time.sleep(0.1)
             continue
 
-        # Capture metadata only in object mode
         metadata = picam2.capture_metadata() if MODE == "object" else None
 
         if MODE == "object":
@@ -157,14 +137,12 @@ def detection_worker():
                 img = m.array.copy()
             req.release()
 
-            # Draw boxes only when NOT saving raw
             if not SAVE_RAW:
                 for x, y, w, h, label, score in dets:
-                    cv2.rectangle(img, (x, y), (x+w, y+h), (0,255,0), 2)
-                    cv2.putText(img, f"{label} {score:.2f}", (x, y-5),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    cv2.putText(img, f"{label} {score:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            ts = time.strftime("%Y%m%d-%H%M%S")
+            ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")  # UPDATED
             prefix = "motion" if MODE == "motion" else "detection"
             fname = f"{prefix}_{ts}.jpg"
             path = os.path.join(OUTPUT_DIR, fname)
@@ -183,8 +161,7 @@ def index():
 @app.route('/gallery')
 def gallery():
     files = sorted(
-        [f for f in os.listdir(OUTPUT_DIR)
-         if f.startswith("detection_") or f.startswith("motion_") or f.startswith("manual_")],
+        [f for f in os.listdir(OUTPUT_DIR) if f.startswith(("detection_", "motion_", "manual_"))],
         key=lambda fn: os.path.getmtime(os.path.join(OUTPUT_DIR, fn)),
         reverse=True
     )
@@ -211,7 +188,7 @@ def api_capture():
     with MappedArray(req, "main") as m:
         img = m.array.copy()
     req.release()
-    ts = time.strftime("%Y%m%d-%H%M%S")
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")  # UPDATED
     fname = f"manual_{ts}.jpg"
     path = os.path.join(OUTPUT_DIR, fname)
     cv2.imwrite(path, img)
@@ -264,16 +241,10 @@ def latest_image():
     path = os.path.join(OUTPUT_DIR, _last_file)
     img = cv2.imread(path)
     for x, y, w, h, label, score in _last_detections:
-        cv2.rectangle(img, (x, y), (x+w, y+h), (0,0,255), 2)
-        cv2.putText(img, f"{label} {score:.2f}", (x, y-5),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        cv2.putText(img, f"{label} {score:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     _, buf = cv2.imencode('.jpg', img)
-    return send_file(
-        io.BytesIO(buf.tobytes()),
-        mimetype='image/jpeg',
-        download_name='latest_detection.jpg'
-    )
+    return send_file(io.BytesIO(buf.tobytes()), mimetype='image/jpeg', download_name='latest_detection.jpg')
 
-# ─── Main ─────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

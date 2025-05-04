@@ -1,6 +1,4 @@
-# Battery scripts for WildberryEyeZero
-
-Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
+# Scripts for WildberryEyeZero
 
 ---
 
@@ -15,9 +13,8 @@ sudo apt install -y python3 python3-psutil python3-pandas python3-matplotlib pyt
 ```bash
 crontab -e
 ```
-Add this line, using environment variables so it works regardless of your username or home directory:
+Start battery logger at reboot
 ```bash
-# Start battery logger at reboot
 @reboot /usr/bin/env python3 $HOME/wildberryeye/scripts/battery_logger_txt.py >> $HOME/wildberryeye/logs/battery_logger.log 2>&1 &
 ```
 Save and exit. This will launch the logger script in the background on startup, writing per-boot telemetry into logs/wildberry_logs/ inside the repo.
@@ -25,11 +22,7 @@ Save and exit. This will launch the logger script in the background on startup, 
 # 3. Run Analysis
 After you have several logs, generate graphs:
 ```bash
-mkdir -p docs/images/wilberry_analysis
 chmod +x scripts/analyze_wildberry.py
-```
-Then run it directly:
-```bash
 scripts/analyze_wildberry.py
 ```
 Output PNGs will appear in docs/images/wilberry_analysis/.
