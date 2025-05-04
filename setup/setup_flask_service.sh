@@ -4,9 +4,9 @@ set -euo pipefail
 # Usage:
 #   ./setup_flask_service.sh <service-name> <path-to-backend> [mode] [--save-raw]
 # Examples:
-#   ./setup_flask_service.sh wildberry_object \
-#     /home/ai/wildberryeyezero/src/wildberryeyezero/backend \
-#     object \
+#   ./setup_flask_service.sh wildberry_motion \
+#     /home/eye/wildberryeye/src/wildberryeyezero/backend \
+#     motion \
 #     --save-raw
 
 if [ $# -lt 2 ]; then
@@ -31,10 +31,24 @@ if ! APP_BACKEND=$(cd "$RAW_PATH" 2>/dev/null && pwd); then
   exit 1
 fi
 
-# Where your patched picamera2 fork lives
-PICAMERA2_PATH="$HOME/picamera2"
+# Determine real home (so PYTHONPATH works under sudo)
+if [ -n "${SUDO_USER:-}" ]; then
+  USER_HOME=$(eval echo "~$SUDO_USER")
+else
+  USER_HOME="$HOME"
+fi
 
-# Build the command to run
+PICAMERA2_SRC="${USER_HOME}/picamera2"
+
+# Make sure your fork lives there
+if [ ! -d "$PICAMERA2_SRC" ]; then
+  echo "Error: picamera2 source not found at $PICAMERA2_SRC"
+  echo "Clone your fork there first, e.g.:"
+  echo "  git clone git@github.com:caiespin/picamera2.git $PICAMERA2_SRC"
+  exit 1
+fi
+
+# Build the ExecStart command
 EXEC_START="/usr/bin/python3 $APP_BACKEND/app.py --mode $MODE"
 if [[ "$SAVE_RAW_FLAG" == "--save-raw" ]]; then
   EXEC_START+=" --save-raw"
@@ -49,8 +63,8 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=${APP_BACKEND}
-# Prepend your fork so python picks it first
-Environment=PYTHONPATH=${PICAMERA2_PATH}
+# Prepend your fork so python picks it before any system install
+Environment=PYTHONPATH=${PICAMERA2_SRC}
 
 ExecStart=${EXEC_START}
 Restart=always
@@ -59,7 +73,7 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-# Reload and start
+# Reload, enable & start
 sudo systemctl daemon-reload
 sudo systemctl enable  ${SERVICE_NAME}
 sudo systemctl restart ${SERVICE_NAME}

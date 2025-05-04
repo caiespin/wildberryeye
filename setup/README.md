@@ -67,7 +67,7 @@ chmod +x setup/setup_flask_service.sh
 sudo systemctl status wildberryeyezero
 ```
 
-# Setup Instructions for WildberryEyeZero
+# Setup Instructions for WildberryEyeZero Motion Detection Mode
 
 Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
 
@@ -104,21 +104,22 @@ cd ~
 git clone git@github.com:caiespin/picamera2.git
 cd picamera2
 pip3 install -e . --break-system-packages
-cd ..
+cd ~
 ```
 
 ## 3. Clone & enter WildBerryEye repo
 ```bash
-git clone https://github.com/caiespin/wildberryeyezero.git
-cd wildberryeyezero
+cd ~
+git clone https://github.com/caiespin/wildberryeye.git
+cd wildberryeye
 ```
 
 ## 4. Test the app manually before making it a service
 ```bash
-cd backend
+cd src/wildberryeyezero/backend
 
 # Motion detection (works with V2 or IMX500 camera):
-python3 app.py --mode motion
+python3 app.py --mode motion --save-raw
 ```
 
 ## 5. Install as a systemd service
@@ -128,7 +129,10 @@ chmod +x setup/setup_flask_service.sh
 ```
 Run it
  ```bash
-sudo setup/setup_flask_service.sh wildberry_motion ~/wildberryeyezero/backend motion --save-raw
+# For motion detection (V2 module or AI‑camera):
+sudo setup/setup_flask_service.sh wildberry_motion \
+     ~/wildberryeye/src/wildberryeyezero/backend \
+     motion --save-raw
 ```
 
 ## 6. Manage the service
