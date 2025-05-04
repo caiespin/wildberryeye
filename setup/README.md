@@ -90,6 +90,60 @@ sudo apt install -y \
   python3-jsonschema \
   python3-libarchive-c \
   python3-tqdm \
+  python3-munkres \
+  python3-dev \
+  libatlas-base-dev \
+  libjpeg-dev \
+  libcamera-apps \
+  libcamera-dev \
+  libcap-dev \
+  imx500-all \
+  imx500-tools \
+  build-essential \
+  git
+sudo reboot
+```
+
+## 2. Install Picamera2 from upstream
+```bash
+cd ~
+git clone git@github.com:caiespin/picamera2.git
+cd picamera2
+pip3 install -e . --break-system-packages
+cd ~
+```
+
+## 3. Clone & enter WildBerryEye repo
+```bash
+cd ~
+git clone git@github.com:caiespin/wildberryeye.git
+cd wildberryeye
+git pull origin main
+```
+
+# Setup Instructions for WildberryEyeZero Motion Detection Mode
+
+Follow these steps to get WildberryEyeZero up and running on your Raspberry Pi.
+
+## 1. Update system and install core packages
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y \
+  python3-pip \
+  python3-flask \
+  python3-numpy \
+  python3-opencv \
+  python3-libcamera \
+  python3-pil \
+  python3-av \
+  python3-v4l2 \
+  python3-prctl \
+  python3-piexif \
+  python3-simplejpeg \
+  python3-pidng \
+  python3-jsonschema \
+  python3-libarchive-c \
+  python3-tqdm \
   libatlas-base-dev \
   libjpeg-dev \
   libcamera-apps \
