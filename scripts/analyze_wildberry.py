@@ -23,7 +23,11 @@ def parse_boot_time(fp):
 
 # Load and normalize cycles
 cycles = {}
-for fp in sorted(glob.glob(os.path.join(LOG_DIR, 'wildberry_*.txt'))):
+log_files = sorted(glob.glob(os.path.join(LOG_DIR, 'wildberry_*.txt')))
+# Ignore the newest log (likely the currently running one)
+if len(log_files) > 1:
+    log_files = log_files[:-1]
+for fp in log_files:
     boot  = parse_boot_time(fp)
     label = boot.strftime('%Y-%m-%d %H:%M')
     df = pd.read_csv(fp, delim_whitespace=True, comment='#',
@@ -121,39 +125,19 @@ plt.savefig(os.path.join(ANALYSIS_DIR, 'duration_boxplot.png'))
 plt.close()
 
 # Summary stats
-\
 total_cycles     = len(durations)
-\
 avg_duration     = np.mean(times)
-\
 min_duration     = np.min(times)
-\
 max_duration     = np.max(times)
-\
-# also in hours
-\
 avg_duration_hr  = avg_duration / 60.0
-\
 min_duration_hr  = min_duration / 60.0
-\
 max_duration_hr  = max_duration / 60.0
-\
-
-\
 avg_cpu_overall  = np.mean(list(avg_cpu.values()))
-\
 avg_temp_overall = np.mean(list(avg_temp.values()))
-\
 
-\
 print("Analysis complete!")
-\
 print(f"  Logs analyzed: {total_cycles} cycles")
-\
 print(f"  Avg duration: {avg_duration:.2f} min ({avg_duration_hr:.2f} hr), min: {min_duration:.2f} min ({min_duration_hr:.2f} hr), max: {max_duration:.2f} min ({max_duration_hr:.2f} hr)")
-\
 print(f"  Overall avg CPU%: {avg_cpu_overall:.1f}%")
-\
 print(f"  Overall avg Temp: {avg_temp_overall:.1f}°C")
-\
 print(f"PNGs saved in {ANALYSIS_DIR}")
