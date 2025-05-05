@@ -5,7 +5,9 @@ import time
 import zipfile
 import argparse
 import io
-from datetime import datetime  # NEW
+import socket
+import getpass
+from datetime import datetime
 
 from flask import Flask, render_template, jsonify, send_file, request
 from picamera2 import Picamera2, MappedArray
@@ -34,6 +36,10 @@ IOU = 0.65
 MAX_DETECTIONS = 10
 MOTION_THRESH = 25
 MIN_AREA = 500
+
+# Metadata
+HOSTNAME = socket.gethostname()
+USERNAME = getpass.getuser()
 
 # ─── Flask App Setup ───────────────────────────────────────────────────────────
 app = Flask(__name__, static_folder=FRONTEND, template_folder=FRONTEND)
@@ -118,6 +124,7 @@ def detection_worker():
 
         if MODE == "object":
             dets = parse_detections(metadata)
+            settings = f"CONF{int(THRESHOLD*100)}_IOU{int(IOU*100)}"
         else:
             if not baseline_set:
                 time.sleep(0.5)
@@ -130,6 +137,7 @@ def detection_worker():
             hits = [cv2.boundingRect(c) for c in cnts if cv2.contourArea(c) > MIN_AREA]
             dets = [(x, y, w, h, "motion", 1.0) for (x, y, w, h) in hits]
             prev_gray = gray
+            settings = f"THRESH{MOTION_THRESH}_AREA{MIN_AREA}"
 
         if dets:
             req = picam2.capture_request()
@@ -142,9 +150,9 @@ def detection_worker():
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
                     cv2.putText(img, f"{label} {score:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
-            ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")  # UPDATED
+            ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
             prefix = "motion" if MODE == "motion" else "detection"
-            fname = f"{prefix}_{ts}.jpg"
+            fname = f"{prefix}_{ts}_{HOSTNAME}_{USERNAME}_{settings}.jpg"
             path = os.path.join(OUTPUT_DIR, fname)
             cv2.imwrite(path, img)
 
@@ -188,8 +196,8 @@ def api_capture():
     with MappedArray(req, "main") as m:
         img = m.array.copy()
     req.release()
-    ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")  # UPDATED
-    fname = f"manual_{ts}.jpg"
+    ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    fname = f"manual_{ts}_{HOSTNAME}_{USERNAME}.jpg"
     path = os.path.join(OUTPUT_DIR, fname)
     cv2.imwrite(path, img)
     _last_file = fname
