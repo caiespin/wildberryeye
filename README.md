@@ -25,11 +25,10 @@ For detailed instructions look at the setup README
 cd wildberryeye/backend
 python3 app.py --mode object
 ```
-`git status`
--Open your browser to `http://<PI_IP>:5000`
--Click Start Detection and verify the live overlay
--Click Capture Now and confirm a new image appears in the gallery
--Navigate to Gallery and test download / delete functionality
+- Open your browser to `http://<PI_IP>:5000`
+- Click Start Detection and verify the live overlay
+- Click Capture Now and confirm a new image appears in the gallery
+- Navigate to Gallery and test download / delete functionality
 
 ### Deployment
 1. Install as a systemd service
