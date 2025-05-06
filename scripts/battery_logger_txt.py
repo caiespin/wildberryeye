@@ -2,10 +2,12 @@
 import os
 import time
 import psutil
+import socket
 from datetime import datetime
 
 # Directory for per-boot logs
-LOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs', 'wildberry_logs')
+LOG_DIR = os.path.join(os.path.dirname(__file__),
+                       '..', 'logs', 'wildberry_logs')
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
@@ -31,15 +33,44 @@ def get_cpu_temp():
         return "N/A"
 
 
+def has_internet(host="8.8.8.8", port=53, timeout=2):
+    """Check for internet connectivity by attempting a socket connection."""
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except Exception:
+        return False
+
+
 if __name__ == '__main__':
-    # Prepare log file
     boot_iso = get_boot_time_iso()
-    logfile = os.path.join(LOG_DIR, f"wildberry_{boot_iso}.txt")
+
+    # Wait for clock sync and internet connectivity (up to 5 minutes)
+    max_wait = 300  # seconds
+    waited = 0
+    sync_ok = False
+
+    while waited < max_wait:
+        now_ts = datetime.utcnow().timestamp()
+        if now_ts >= psutil.boot_time() and has_internet():
+            sync_ok = True
+            break
+        time.sleep(1)
+        waited += 1
+
+    # Choose filename suffix if sync failed
+    suffix = '' if sync_ok else '_NOSYNC'
+    logfile = os.path.join(LOG_DIR, f"wildberry_{boot_iso}{suffix}.txt")
+
+    # Write header (with warning if needed)
     with open(logfile, 'w') as f:
         f.write(f"# Boot time: {boot_iso}\n")
+        if not sync_ok:
+            f.write(f"# WARNING: clock not synchronized or no internet after {max_wait} seconds\n")
         f.write("Timestamp\tBoot\tTemp\tCPU%\tLoad1m\n")
 
-    # Prime CPU percent
+    # Prime CPU percent measurement
     psutil.cpu_percent(interval=None)
 
     # Logging loop
