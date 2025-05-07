@@ -108,8 +108,10 @@ def parse_detections(metadata):
 
     dets = []
     for (x, y, w, h), score, cat in zip(boxes, scores, classes):
-        if score > THRESHOLD:
-            dets.append((int(x), int(y), int(w), int(h), intrinsics.labels[int(cat)], float(score)))
+        cat = int(cat)
+        if score > THRESHOLD and 0 <= cat < len(intrinsics.labels):
+            label = intrinsics.labels[cat]
+            dets.append((int(x), int(y), int(w), int(h), label, float(score)))
     return dets
 
 # ─── Detection Worker ───────────────────────────────────────────────────────────
