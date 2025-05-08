@@ -1,44 +1,51 @@
 #!/usr/bin/env python3
 import os
-import zipfile
 import argparse
 from datetime import datetime
+import zipfile
 
-# ─── Argument Parsing ─────────────────────────────────────────────────────────
-parser = argparse.ArgumentParser(description="Zip WildBerryEye images for a given date")
-parser.add_argument("--date", type=str, default=datetime.now().strftime("%Y-%m-%d"),
-                    help="Date in YYYY-MM-DD format (default: today)")
-parser.add_argument("--mode", choices=["object", "motion"], required=True,
-                    help="Detection mode (object or motion)")
+parser = argparse.ArgumentParser(description="Zip WildBerryEye images by date.")
+parser.add_argument("--mode", choices=["object", "motion"], required=True, help="Mode: object or motion")
+parser.add_argument("--date", required=False, help="Date in YYYY-MM-DD format. Default: today")
 args = parser.parse_args()
 
-DATE = args.date
-MODE = args.mode
+# Defaults
+if not args.date:
+    args.date = datetime.now().strftime("%Y-%m-%d")
 
-# ─── Paths ────────────────────────────────────────────────────────────────────
-REPO_HOME = os.path.expanduser("~/wildberryeye")
-FRONTEND_IMAGES = os.path.join(REPO_HOME, "src", "wildberryeyezero", "frontend", "images")
-DAILY_DIR = os.path.join(FRONTEND_IMAGES, DATE)
-ZIP_NAME = f"{MODE}_{DATE}.zip"
-ZIP_PATH = os.path.join(FRONTEND_IMAGES, ZIP_NAME)
+repo_base = os.path.expanduser("~/wildberryeye")
+image_dir = os.path.join(repo_base, "src", "wildberryeyezero", "frontend", "images")
+output_dir = image_dir
 
-# ─── Ensure Directory Exists ──────────────────────────────────────────────────
-os.makedirs(DAILY_DIR, exist_ok=True)
+prefix = args.mode
+zip_filename = f"{prefix}_{args.date}.zip"
+zip_path = os.path.join(output_dir, zip_filename)
 
-# ─── Collect Matching Files ───────────────────────────────────────────────────
-prefix = "detection_" if MODE == "object" else "motion_"
-for fname in os.listdir(FRONTEND_IMAGES):
-    if fname.startswith(prefix) and DATE.replace("-", "") in fname:
-        src = os.path.join(FRONTEND_IMAGES, fname)
-        dst = os.path.join(DAILY_DIR, fname)
-        os.rename(src, dst)
+# Clean up existing zip and marker if they exist
+if os.path.exists(zip_path):
+    os.remove(zip_path)
 
-# ─── Zip the Folder ───────────────────────────────────────────────────────────
-with zipfile.ZipFile(ZIP_PATH, 'w', zipfile.ZIP_DEFLATED) as zipf:
-    for root, _, files in os.walk(DAILY_DIR):
-        for file in files:
-            abs_path = os.path.join(root, file)
-            rel_path = os.path.relpath(abs_path, FRONTEND_IMAGES)
-            zipf.write(abs_path, arcname=rel_path)
+done_marker = os.path.join(output_dir, f"{prefix}_{args.date}.DONE")
+if os.path.exists(done_marker):
+    os.remove(done_marker)
 
-print(f"Zipped {MODE} detections for {DATE} to: {ZIP_PATH}")
+# Collect files to zip
+files_to_zip = [
+    f for f in os.listdir(image_dir)
+    if f.startswith(f"{prefix}_") and args.date.replace("-", "") in f
+]
+
+# Zip them
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+    for fname in files_to_zip:
+        fpath = os.path.join(image_dir, fname)
+        arcname = os.path.basename(fpath)
+        zipf.write(fpath, arcname=arcname)
+
+# Create .DONE marker
+with open(done_marker, "w") as f:
+    f.write("done\n")
+
+print(f"Zipped {args.mode} detections for {args.date} to: {zip_path}")
+print(f"Wrote done marker to: {done_marker}")
+

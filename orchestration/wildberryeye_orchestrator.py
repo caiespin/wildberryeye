@@ -5,6 +5,7 @@ import datetime
 import argparse
 import logging
 import socket
+import time
 
 # ─── CLI Arguments ──────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="WildBerryEye Orchestration Script")
@@ -20,7 +21,7 @@ args = parser.parse_args()
 NAS_BASE = "/mnt/nas/WildBerryData/detections"
 REPO_HOME = "/home/{user}/wildberryeye"
 ZIP_SCRIPT = "scripts/zip_images_by_date.py"
-LOG_FILE = "/var/log/wildberryeye_orchestrator.log"
+LOG_FILE = os.path.expanduser("~/wildberryeye/logs/wildberryeye_orchestrator.log")
 logging.basicConfig(
     filename=LOG_FILE,
     level=logging.INFO,
@@ -40,37 +41,55 @@ def check_ntp_sync():
         ntp_status = subprocess.check_output(["systemctl", "is-active", "systemd-timesyncd"]).decode().strip()
         return timedatectl == "yes", ntp_status
     except Exception:
-        return False, "unknown"
+        return False, "unknown" 
 
 def collect_zip(camera_name, host, user, mode):
     logging.info(f"Connecting to {host} ({camera_name}) to zip {args.date} {mode} data...")
-    ssh_cmd = (
-        f"ssh {user}@{host} "
-        f"'python3 {REPO_HOME.format(user=user)}/{ZIP_SCRIPT} "
-        f"--mode {mode} --date {args.date}'"
-    )
-    result = subprocess.run(ssh_cmd, shell=True)
-    if result.returncode != 0:
-        logging.error(f"Zipping failed on {host} ({mode})")
-        return False
 
-    # Rsync ZIP file from camera to NAS
-    remote_zip = f"{REPO_HOME.format(user=user)}/{mode}_{args.date}.zip"
-    local_dir = os.path.join(NAS_BASE, args.date, mode)
-    os.makedirs(local_dir, exist_ok=True)
-    rsync_cmd = f"rsync -avz {user}@{host}:{remote_zip} {local_dir}/"
-    result = subprocess.run(rsync_cmd, shell=True)
-    if result.returncode != 0:
-        logging.error(f"Rsync failed from {host} ({mode})")
-        return False
+    try:
+        zip_base = f"{mode}_{args.date}"
+        remote_dir = f"/home/{user}/wildberryeye/src/wildberryeyezero/frontend/images"
+        remote_zip = f"{remote_dir}/{zip_base}.zip"
+        remote_done = f"{remote_dir}/{zip_base}.DONE"
 
-    # Unzip it
-    zip_path = os.path.join(local_dir, f"{mode}_{args.date}.zip")
-    subprocess.run(["unzip", "-o", zip_path, "-d", local_dir])
-    os.remove(zip_path)
+        # Step 1: Trigger zip script in background
+        zip_cmd = (
+            f"nohup python3 /home/{user}/wildberryeye/scripts/zip_images_by_date.py "
+            f"--mode {mode} --date {args.date} > /dev/null 2>&1 &"
+        )
+        subprocess.run(f"ssh {user}@{host} '{zip_cmd}'", shell=True, check=True)
 
-    logging.info(f"{mode.capitalize()} images from {host} collected and extracted to {local_dir}")
-    return True
+        # Step 2: Poll for .DONE marker file
+        logging.info(f"[{camera_name}] Polling for completion marker: {remote_done}")
+        for attempt in range(60):  # 10 minutes max
+            result = subprocess.run(
+                f"ssh {user}@{host} 'test -f {remote_done}'",
+                shell=True
+            )
+            if result.returncode == 0:
+                logging.info(f"[{camera_name}] DONE marker found.")
+                break
+            time.sleep(10)
+        else:
+            raise TimeoutError(f"[{camera_name}] Timeout: .DONE marker not found after 10 minutes.")
+
+        # Step 3: Rsync zip file to NAS
+        local_dir = os.path.join(NAS_BASE, args.date, mode)
+        os.makedirs(local_dir, exist_ok=True)
+        rsync_cmd = f"rsync -avz {user}@{host}:{remote_zip} {local_dir}/"
+        subprocess.run(rsync_cmd, shell=True, check=True)
+
+        # Step 4: Unzip and preserve the zip
+        zip_path = os.path.join(local_dir, f"{zip_base}.zip")
+        subprocess.run(["unzip", "-oq", zip_path, "-d", local_dir], check=True)
+
+        logging.info(f"[{camera_name}] Images collected and extracted to {local_dir}")
+
+    except TimeoutError as e:
+        logging.error(str(e))
+    except subprocess.CalledProcessError as e:
+        logging.error(f"[{camera_name}] Subprocess failed: {e}")
+
 
 # ─── MAIN ───────────────────────────────────────────────────────────────────────
 logging.info("Starting WildBerryEye orchestration with --date=%s", args.date)
