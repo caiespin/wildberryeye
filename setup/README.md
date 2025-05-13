@@ -72,10 +72,8 @@ Persons
 ```bash
 cd backend/models
 wget https://github.com/caiespin/wildberryeye/releases/download/v1.0.1/yolo11n_imx_model.zip #For Persons
-unzip yolo11n_imx_model.zip \
-  "content/runs/detect/train/weights/yolo11n_imx_model/*" \
-  -d .
-mv content/runs/detect/train/weights/yolo11n_imx_model/* ./
+unzip yolo11n_imx_model.zip   "content/yolo11n_imx_model/*"   -d .
+mv content/yolo11n_imx_model/* ./
 rm -rf content
 ```
 ## 5. Package into RPK if you have packerOut.zip
@@ -87,8 +85,10 @@ cd ../..
 
 ## 6. Verify model files are in place
 ```bash
-ls src/wildberryeyezero/backend/models
+ls ~/wildberryeye/src/wildberryeyezero/backend/models/best_imx_model.rpk
+ls ~/wildberryeye/src/wildberryeyezero/backend/models/labels.txt
 ```
+Check the contents of labels.tx, the conten should have only the label "person"
 
 ## 7. Run the server manually in object‑detection mode
 ```bash
