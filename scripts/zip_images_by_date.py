@@ -29,7 +29,7 @@ with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
         if not fname.endswith(".jpg"):
             continue
         # Match both motion_ and detection_ images by mode
-        if MODE == "object" and not fname.startswith("detection_"):
+        if MODE == "object" and not fname.startswith("object_"):
             continue
         if MODE == "motion" and not fname.startswith("motion_"):
             continue
