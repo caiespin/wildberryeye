@@ -153,7 +153,7 @@ def detection_worker():
                     cv2.putText(img, f"{label} {score:.2f}", (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             ts = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-            prefix = "motion" if MODE == "motion" else "detection"
+            prefix = "motion" if MODE == "motion" else "object"
             fname = f"{prefix}_{ts}_{HOSTNAME}_{USERNAME}_{settings}.jpg"
             path = os.path.join(OUTPUT_DIR, fname)
             cv2.imwrite(path, img)
