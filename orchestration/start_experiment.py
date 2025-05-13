@@ -17,7 +17,7 @@ from utils import (
 # ─── Logging Setup ─────────────────────────────────────────────────────────────
 LOG_DIR = os.path.expanduser("~/wildberryeye/logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-LOG_PATH = os.path.join(LOG_DIR, "start_experiment.log")
+LOG_PATH = os.path.join(LOG_DIR, "wildberryeye_start_experiment.log")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -56,21 +56,21 @@ def main():
     time.sleep(10)
 
     # Step 5: Poll /api/capture to ensure it's available
-    success_object = wait_for_capture_api(args.object_host)
-    success_motion = wait_for_capture_api(args.motion_host)
+    wait_for_capture_api(args.object_host)
+    wait_for_capture_api(args.motion_host)
 
     # Step 6: Start detections
-    start_remote_detection(args.object_host, "object")
-    start_remote_detection(args.motion_host, "motion")
+    success_object = start_remote_detection(args.object_host, "object")
+    success_motion = start_remote_detection(args.motion_host, "motion")
 
     if success_object and success_motion:
         logging.info("Experiment started successfully.")
     else:
         logging.error("Experiment startup failed — one or both cameras did not respond.")
         if not success_object:
-            logging.error(f"[{args.object_host}] Capture API failed.")
+            logging.error(f"[{args.object_host}] API failed.")
         if not success_motion:
-            logging.error(f"[{args.motion_host}] Capture API failed.")
+            logging.error(f"[{args.motion_host}] API failed.")
 
 
 if __name__ == "__main__":
