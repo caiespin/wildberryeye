@@ -4,6 +4,7 @@ import datetime
 import logging
 import os
 import zipfile
+import subprocess
 from utils import (
     stop_remote_detection,
     run_remote_zip,
@@ -26,6 +27,10 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
+# ─── Stop Heartbeat Service Immediately ──────────────────────────────
+subprocess.run(["systemctl", "--user", "stop", "wildberryeye_heartbeat.service"])
+logging.info("Heartbeat service stopped.")
 
 # ─── Constants ─────────────────────────────────────────────────────────────────
 LOCAL_IMAGE_DIR = "/mnt/nas/WildBerryData/detections"
