@@ -171,7 +171,7 @@ def index():
 @app.route('/gallery')
 def gallery():
     files = sorted(
-        [f for f in os.listdir(OUTPUT_DIR) if f.startswith(("detection_", "motion_", "manual_"))],
+        [f for f in os.listdir(OUTPUT_DIR) if f.startswith(("object_", "motion_", "manual_"))],
         key=lambda fn: os.path.getmtime(os.path.join(OUTPUT_DIR, fn)),
         reverse=True
     )
