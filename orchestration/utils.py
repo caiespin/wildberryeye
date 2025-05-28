@@ -182,34 +182,6 @@ def verify_nas_archive(mode, date):
         logging.warning(f"[NAS] ZIP not found or empty at {full_path}")
         return False
 
-# ───────────────────────────────
-# Transfer ZIP to NAS and Store
-# ───────────────────────────────
-def transfer_and_store_zip(host, user, role, date, local_dir="/mnt/nas/WildBerryData/detections"):
-    """Transfer the ZIP file from a remote WildBerry and store it in the NAS directory."""
-    zipname = f"{role}_{date}.zip"
-    remote_path = f"/home/{user}/wildberryeye/src/wildberryeyezero/frontend/images/{zipname}"
-    local_path = os.path.join(local_dir, date, role)
-    os.makedirs(local_path, exist_ok=True)
-
-    logging.info(f"[{host}] Downloading {zipname} to {local_path}")
-    result = subprocess.run(
-        ["rsync", "-avz", f"{user}@{host}:{remote_path}", local_path],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        logging.error(f"[{host}] Rsync failed: {result.stderr.strip()}")
-        return False
-
-    zip_path = os.path.join(local_path, zipname)
-    if not zipfile.is_zipfile(zip_path):
-        logging.warning(f"[{host}] {zipname} failed verification -- update discarded.")
-        os.remove(zip_path)
-        return False
-
-    logging.info(f"[{host}] ZIP saved to: {zip_path}")
-    return True
-
 def stop_remote_detection(host: str):
     """Stops detection via Flask API."""
     logging.info(f"[{host}] Stopping detection via /api/stop...")
@@ -229,3 +201,4 @@ def delete_done_marker(host, user, mode, date):
     done_path = f"/home/{user}/wildberryeye/src/wildberryeyezero/frontend/images/{mode}_{date}.DONE"
     logging.info(f"[{host}] Removing stale marker: {done_path}")
     ssh_run(host, user, f"rm -f {done_path}")
+

@@ -5,6 +5,7 @@ import datetime
 import time
 import logging
 import requests
+import subprocess
 from utils import (
     ssh_run,
     stop_service,
@@ -52,9 +53,6 @@ def main():
     start_service(args.object_host, args.object_user)
     start_service(args.motion_host, args.motion_user)
 
-    # Step 4: Wait a bit for Flask server to come online
-    time.sleep(10)
-
     # Step 5: Poll /api/capture to ensure it's available
     wait_for_capture_api(args.object_host)
     wait_for_capture_api(args.motion_host)
@@ -72,6 +70,9 @@ def main():
         if not success_motion:
             logging.error(f"[{args.motion_host}] API failed.")
 
+    # Start heartbeat monitor service
+    subprocess.run(["systemctl", "--user", "start", "wildberryeye_heartbeat.service"])
+    logging.info("Heartbeat monitor started.")
 
 if __name__ == "__main__":
     main()
