@@ -16,6 +16,9 @@ logs/
 src/wildberryeyezero/frontend/images/*
 src/wildberryeyezero/backend/models/*
 
+# Ignore analysis data
+analysis/data/*
+
 # Ignore extracted IMX500 model artifacts
 backend/models/*.onnx
 backend/models/*.pbtxt
