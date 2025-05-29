@@ -64,6 +64,8 @@ RestartSec=10
 [Install]
 WantedBy=default.target
 ```
+Note: Systemd doesn't expand ~ inside ExecStart= or other directives, so you must use the full absolute path, e.g., /home/decim/....
+
 Reload systemd:
 ```bash
 systemctl --user daemon-reexec
