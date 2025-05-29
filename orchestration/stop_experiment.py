@@ -33,19 +33,19 @@ subprocess.run(["systemctl", "--user", "stop", "wildberryeye_heartbeat.service"]
 logging.info("Heartbeat service stopped.")
 
 # ─── Constants ─────────────────────────────────────────────────────────────────
-LOCAL_IMAGE_DIR = "/mnt/nas/WildBerryData/detections"
+LOCAL_IMAGE_DIR = "~/wildberryeye/analysis/data"
 
 def validate_zip(mode: str, date: str) -> bool:
     """Check if the downloaded ZIP is valid and non-empty."""
     zip_path = os.path.join(LOCAL_IMAGE_DIR, date, mode, f"{mode}_{date}.zip")
     if not os.path.exists(zip_path):
-        logging.warning(f"[NAS] ZIP not found at {zip_path}")
+        logging.warning(f"[Local] ZIP not found at {zip_path}")
         return False
     if not zipfile.is_zipfile(zip_path):
-        logging.warning(f"[NAS] ZIP is not valid: {zip_path}")
+        logging.warning(f"[Local] ZIP is not valid: {zip_path}")
         return False
     if os.path.getsize(zip_path) < 100:
-        logging.warning(f"[NAS] ZIP too small — possibly empty: {zip_path}")
+        logging.warning(f"[Local] ZIP too small — possibly empty: {zip_path}")
         return False
     return True
 
