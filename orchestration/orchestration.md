@@ -1,6 +1,6 @@
 # WildBerryEye Orchestrator Setup
 
-This guide explains how to set up and run the orchestration scripts for coordinating object and motion detection cameras in the WildBerryEye system.
+This orchestration system coordinates two WildBerryEyeZero cameras—one for object detection and one for motion detection. It automates experiment startup and shutdown, ensures camera health via a heartbeat monitor, and organizes data retrieval and cleanup.
 
 ## Requirements
 
