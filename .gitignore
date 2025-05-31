@@ -28,3 +28,6 @@ backend/models/*.zip
 
 # Track only the .rpk model package
 !backend/models/*.rpk
+
+# Ignore python virtual environmment files
+.venv
