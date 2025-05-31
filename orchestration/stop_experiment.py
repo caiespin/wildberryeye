@@ -33,7 +33,7 @@ subprocess.run(["systemctl", "--user", "stop", "wildberryeye_heartbeat.service"]
 logging.info("Heartbeat service stopped.")
 
 # ─── Constants ─────────────────────────────────────────────────────────────────
-LOCAL_IMAGE_DIR = "~/wildberryeye/analysis/data"
+LOCAL_IMAGE_DIR = os.path.expanduser("~/wildberryeye/analysis/data")
 
 def validate_zip(mode: str, date: str) -> bool:
     """Check if the downloaded ZIP is valid and non-empty."""

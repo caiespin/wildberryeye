@@ -111,7 +111,7 @@ def zip_images_by_date(host, user, role, date):
 # Remote Zipping and Polling
 # ───────────────────────────────
 
-LOCAL_IMAGE_DIR = "/mnt/nas/WildBerryData/detections"
+LOCAL_IMAGE_DIR = os.path.expanduser("~/wildberryeye/analysis/data")
 REMOTE_IMAGE_DIR = "/home/eye/wildberryeye/src/wildberryeyezero/frontend/images"
 ZIP_SCRIPT_PATH = "/home/eye/wildberryeye/scripts/zip_images_by_date.py"
 POLL_INTERVAL = 10

@@ -11,8 +11,8 @@ sys.path.append(os.path.dirname(__file__))
 from utils import start_service, wait_for_capture_api, start_remote_detection
 
 # Config
-OBJECT_HOST = "192.168.1.247"
-MOTION_HOST = "192.168.1.216"
+OBJECT_HOST = "192.168.1.146"
+MOTION_HOST = "192.168.1.174"
 USER = "eye"
 INTERVAL = 60  # seconds
 MAX_FAILURES = 3
