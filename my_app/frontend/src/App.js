@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NavBar from "./component/NavBar";
+import Home from "./Home";
+import Dashboard from "./Dashboard";
 
 function App() {
-  const [msg, setMsg] = useState("");
-
-  useEffect(() => {
-    fetch("/api/hello")
-      .then((res) => res.json())
-      .then((data) => setMsg(data.message))
-      .catch((err) => console.error(err));
-  }, []);
-
   return (
-    <div>
-      <h1>{msg}</h1>
-    </div>
+    <Router>
+      <NavBar />
+      <div style={{ padding: "1rem" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
