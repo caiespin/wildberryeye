@@ -5,15 +5,15 @@ const NavBar = () => {
   return (
     <nav
       style={{
-        background: "#282c34",
+        background: "#F4F0F0",
         padding: "1rem",
-        color: "white",
+        color: "black",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
       }}
     >
-      <h2 style={{ margin: 0 }}>My Website</h2>
+      <h2 style={{ margin: 0 }}>WildberryEye</h2>
       <div>
         <Link to="/" style={linkStyle}>
           Home
@@ -28,7 +28,7 @@ const NavBar = () => {
 
 const linkStyle = {
   marginLeft: "1rem",
-  color: "white",
+  color: "black",
   textDecoration: "none",
   fontSize: "1.1rem",
 };

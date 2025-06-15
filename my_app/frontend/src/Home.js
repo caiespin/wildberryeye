@@ -1,18 +1,31 @@
 import React, { useEffect, useState } from "react";
+import EmblaCarousel from "./component/EmblaCarousel";
+
+const logos = [
+  { src: "/images/1.jpg", alt: "bees1 Logo" },
+  { src: "/images/2.jpg", alt: "bees2 Logo" },
+  { src: "/images/3.jpg", alt: "bees3 Logo" },
+  { src: "/images/4.jpg", alt: "bees4 Logo" },
+  { src: "/images/5.jpg", alt: "bees5 Logo" },
+];
 
 const Home = () => {
   const [msg, setMsg] = useState("");
 
-  useEffect(() => {
-    fetch("/api/hello")
-      .then((res) => res.json())
-      .then((data) => setMsg(data.message))
-      .catch((err) => console.error(err));
-  }, []);
+  // useEffect(() => {
+  //   fetch("/api/hello")
+  //     .then((res) => res.json())
+  //     .then((data) => setMsg(data.message))
+  //     .catch((err) => console.error(err));
+  // }, []);
   return (
     <div>
       <h1>{msg}</h1>
-      <h1>Welcome to the Home Page</h1>
+      <h1>Welcome to WildberryEye Platform!</h1>
+      <div>
+        <h1>Live Preview for Bees!</h1>
+        <EmblaCarousel images={logos} />
+      </div>
     </div>
   );
 };
