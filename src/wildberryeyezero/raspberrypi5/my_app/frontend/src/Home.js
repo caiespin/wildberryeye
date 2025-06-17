@@ -12,12 +12,12 @@ const logos = [
 const Home = () => {
   const [msg, setMsg] = useState("");
 
-  // useEffect(() => {
-  //   fetch("/api/hello")
-  //     .then((res) => res.json())
-  //     .then((data) => setMsg(data.message))
-  //     .catch((err) => console.error(err));
-  // }, []);
+  useEffect(() => {
+    fetch("/api/hello")
+      .then((res) => res.json())
+      .then((data) => setMsg(data.message))
+      .catch((err) => console.error(err));
+  }, []);
   return (
     <div>
       <h1>{msg}</h1>
