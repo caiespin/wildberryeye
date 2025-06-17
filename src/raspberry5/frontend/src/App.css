@@ -1,0 +1,7 @@
+.background {
+  background-image: url("/src/raspberry5/frontend/public/images/1.jpg"); /* Path relative to the public folder or src folder */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+}

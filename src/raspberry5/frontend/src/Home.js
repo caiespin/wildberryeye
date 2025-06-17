@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import EmblaCarousel from "./component/EmblaCarousel";
+// import "./App.css";
 
 const logos = [
   { src: "/images/1.jpg", alt: "bees1 Logo" },
@@ -20,8 +21,10 @@ const Home = () => {
   }, []);
   return (
     <div>
-      <h1>{msg}</h1>
-      <h1>Welcome to WildberryEye Platform!</h1>
+      {/* <h1>{msg}</h1> */}
+      <div className="background">
+        <h1>Welcome to WildberryEye Platform!</h1>
+      </div>
       <div>
         <h1>Live Preview for Bees!</h1>
         <EmblaCarousel images={logos} />
