@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import EmblaCarousel from "./component/EmblaCarousel";
-// import "./App.css";
+import EmblaCarousel from "./components/EmblaCarousel";
+import "./App.css";
 
 const logos = [
   { src: "/images/1.jpg", alt: "bees1 Logo" },
@@ -19,13 +19,14 @@ const Home = () => {
       .then((data) => setMsg(data.message))
       .catch((err) => console.error(err));
   }, []);
+
   return (
-    <div>
+    <div className="home">
       {/* <h1>{msg}</h1> */}
-      <div className="background">
+      <div className="background-wrapper">
         <h1>Welcome to WildberryEye Platform!</h1>
       </div>
-      <div>
+      <div className="liveview">
         <h1>Live Preview for Bees!</h1>
         <EmblaCarousel images={logos} />
       </div>

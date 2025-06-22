@@ -1,7 +1,50 @@
-.background {
-  background-image: url("/src/raspberry5/frontend/public/images/1.jpg"); /* Path relative to the public folder or src folder */
+/* Home Page */
+.background-wrapper {
+  background-image: url("../public/images/background.jpg");
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  height: 100vh;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* position: relative; */
+}
+
+.liveview {
+  text-align: center;
+}
+
+/* Dashboard Page */
+.container {
+  display: flex;
+  min-height: 100vh; /* full screen height */
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #333;
+  color: white;
+  padding: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.sidebar li.active {
+  background-color: #555;
+  border-radius: 4px;
+}
+
+.main-content {
+  flex: 1; /* take the remaining space */
+  padding: 2rem;
+  background-color: #f5f5f5;
 }

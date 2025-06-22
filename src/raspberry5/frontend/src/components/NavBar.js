@@ -6,7 +6,6 @@ const NavBar = () => {
     <nav
       style={{
         background: "#F4F0F0",
-        padding: "1rem",
         color: "black",
         display: "flex",
         justifyContent: "space-between",
@@ -27,10 +26,10 @@ const NavBar = () => {
 };
 
 const linkStyle = {
-  marginLeft: "1rem",
   color: "black",
   textDecoration: "none",
   fontSize: "1.1rem",
+  padding: "5px",
 };
 
 export default NavBar;
