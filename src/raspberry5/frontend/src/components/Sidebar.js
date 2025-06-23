@@ -1,5 +1,5 @@
 function Sidebar({ onSelect, selected }) {
-  const sections = ["Home", "About", "Contact"];
+  const sections = ["Bee's Video", "Bird's Video", "Data Analytics"];
 
   return (
     <nav className="sidebar">

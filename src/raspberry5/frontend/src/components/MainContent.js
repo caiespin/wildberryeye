@@ -1,9 +1,15 @@
+import CalendarComp from "./Calendar";
+
 function MainContent({ section }) {
   return (
     <div className="main-content">
-      {section === "Home" && <h2>Welcome to the Home page</h2>}
-      {section === "About" && <h2>About us content</h2>}
-      {section === "Contact" && <h2>Contact information</h2>}
+      {section === "Bee's Video" && (
+        <div>
+          <CalendarComp />
+        </div>
+      )}
+      {section === "Bird's Video" && <h2>Show Video</h2>}
+      {section === "Data Analytics" && <h2>Data Analytics</h2>}
     </div>
   );
 }

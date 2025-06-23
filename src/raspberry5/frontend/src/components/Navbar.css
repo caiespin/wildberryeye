@@ -13,6 +13,7 @@
 .linkstyle {
   display: flex;
   font-size: 15px;
+  align-items: center;
 }
 
 .linktext {
@@ -24,5 +25,5 @@
 }
 
 .linktext:hover {
-  background-color: #e9d0d0;
+  background-color: #e1c4c4;
 }

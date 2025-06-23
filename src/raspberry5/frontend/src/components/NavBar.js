@@ -7,11 +7,11 @@ const NavBar = () => {
     <div className="navbar">
       <p>WildberryEye</p>
       <div className="linkstyle">
-        <Link to="/" className="linktext">
-          Home
+        <Link to="/">
+          <button className="linktext">Home</button>
         </Link>
-        <Link to="/dashboard" className="linktext">
-          Dashboard
+        <Link to="/dashboard">
+          <button className="linktext">Dashboard</button>
         </Link>
       </div>
     </div>
