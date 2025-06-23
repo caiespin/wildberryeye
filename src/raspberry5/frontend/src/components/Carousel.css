@@ -5,7 +5,8 @@
 
 .embla {
   overflow: hidden;
-  width: 100%;
+  width: 500px;
+  margin: auto;
 }
 
 .embla__container {
@@ -14,7 +15,7 @@
 
 .embla_slide {
   flex: 0 0 100%;
-  min-width: auto;
+  min-width: 0;
   position: relative;
 }
 

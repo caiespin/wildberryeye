@@ -21,14 +21,16 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="home">
+    <div>
       {/* <h1>{msg}</h1> */}
       <div className="background-wrapper">
         <h1>Welcome to WildberryEye Platform!</h1>
       </div>
       <div className="liveview">
         <h1>Live Preview for Bees!</h1>
+        <p>Time:06/22/2025 23:63 </p>
         <EmblaCarousel images={logos} />
+        <button className="download-button">Download</button>
       </div>
     </div>
   );

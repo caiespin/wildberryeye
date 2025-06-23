@@ -1,35 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./Navbar.css";
 
 const NavBar = () => {
   return (
-    <nav
-      style={{
-        background: "#F4F0F0",
-        color: "black",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <h2 style={{ margin: 0 }}>WildberryEye</h2>
-      <div>
-        <Link to="/" style={linkStyle}>
+    <div className="navbar">
+      <p>WildberryEye</p>
+      <div className="linkstyle">
+        <Link to="/" className="linktext">
           Home
         </Link>
-        <Link to="/dashboard" style={linkStyle}>
+        <Link to="/dashboard" className="linktext">
           Dashboard
         </Link>
       </div>
-    </nav>
+    </div>
   );
-};
-
-const linkStyle = {
-  color: "black",
-  textDecoration: "none",
-  fontSize: "1.1rem",
-  padding: "5px",
 };
 
 export default NavBar;
