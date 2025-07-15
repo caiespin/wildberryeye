@@ -1,0 +1,36 @@
+/* * {
+  margin: 10px;
+  padding: 10px;
+} */
+
+.embla {
+  overflow: hidden;
+  width: 500px;
+  margin: auto;
+}
+
+.embla__container {
+  display: flex;
+}
+
+.embla_slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  position: relative;
+}
+
+.embla_image {
+  width: 500px;
+  height: 500px;
+  display: block;
+}
+
+.embla button {
+  width: 100px;
+  height: 40px;
+  margin: 10px;
+  border-radius: 12px;
+  background-color: #dccccc;
+  font-size: 18px;
+  text-align: center;
+}

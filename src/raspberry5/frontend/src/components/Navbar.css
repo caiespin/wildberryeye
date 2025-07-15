@@ -1,0 +1,29 @@
+.navbar {
+  background-color: #e2d7d7;
+  color: black;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-family: sans-serif;
+}
+.navbar p {
+  font-size: 1.5rem;
+  padding: 5px;
+}
+.linkstyle {
+  display: flex;
+  font-size: 15px;
+  align-items: center;
+}
+
+.linktext {
+  background-color: #e2d7d7;
+  color: black;
+  font-size: 1.5em;
+  text-align: center;
+  padding: 20px;
+}
+
+.linktext:hover {
+  background-color: #e1c4c4;
+}

@@ -1,0 +1,92 @@
+/* Home Page */
+.background-wrapper {
+  background-image: url("../public/images/background.jpg");
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 800px;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+  font-family: sans-serif;
+  font-size: 20px;
+}
+
+.background-wrapper h1 {
+  margin-top: 120px;
+}
+
+.liveview {
+  text-align: center;
+  font-family: sans-serif;
+  background-color: #e2d7d7;
+}
+
+.liveview h1 {
+  margin: 0 0;
+  padding-top: 30px;
+}
+
+.download-button {
+  width: 120px;
+  height: 40px;
+  margin: 10px;
+  border-radius: 12px;
+  background-color: #dccccc;
+  font-size: 18px;
+  text-align: center;
+}
+
+.download-button:hover {
+  background-color: #e1c4c4;
+}
+
+/* Dashboard Page */
+.container {
+  display: flex;
+  min-height: 100vh; /* full screen height */
+}
+
+.sidebar {
+  width: 200px;
+  background-color: white;
+  color: black;
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.sidebar li.active {
+  background-color: #e2d7d7;
+  border-radius: 4px;
+}
+
+.main-content {
+  /* flex: 1;  take the remaining space */
+  padding: 2rem;
+  width: 100%;
+  background-color: #f5f5f5;
+}
+
+.main-content .calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* copyright */
+.copyright {
+  background-color: #e0c7c7;
+  height: fit-content;
+  color: black;
+  text-align: center;
+}
