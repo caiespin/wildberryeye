@@ -1,4 +1,5 @@
 import CalendarComp from "./Calendar";
+import CameraCapture from "./CameraCapture";
 
 function MainContent({ section }) {
   return (
@@ -9,7 +10,11 @@ function MainContent({ section }) {
         </div>
       )}
       {section === "Bird's Video" && <h2>Show Video</h2>}
-      {section === "Data Analytics" && <h2>Data Analytics</h2>}
+      {section === "Data Analytics" && (
+        <div>
+          <CameraCapture />
+        </div>
+      )}
     </div>
   );
 }
