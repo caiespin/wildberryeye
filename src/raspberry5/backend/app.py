@@ -26,4 +26,4 @@ def capture_image():
     return Response(stream.read(), mimetype="image/jpeg")
 
 if __name__ == '__main__':
-    app.run(host="10.0.0.145", port=5000, debug=True)
+    app.run(host="10.0.0.145", port=5000, debug=False)

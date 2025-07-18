@@ -4,15 +4,19 @@ import CameraCapture from "./CameraCapture";
 function MainContent({ section }) {
   return (
     <div className="main-content">
-      {section === "Bee's Video" && (
+      {section === "Get Image" && (
+        <div>
+          <CameraCapture />
+        </div>
+      )}
+      {section === "Get Video" && (
         <div>
           <CalendarComp />
         </div>
       )}
-      {section === "Bird's Video" && <h2>Show Video</h2>}
-      {section === "Data Analytics" && (
+      {section === "Get Video by on selected time" && (
         <div>
-          <CameraCapture />
+          <CalendarComp />
         </div>
       )}
     </div>
