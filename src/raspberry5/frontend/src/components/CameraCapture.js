@@ -6,7 +6,7 @@ const CameraCapture = () => {
   const handleCapture = () => {
     // Add timestamp to avoid caching
     const timestamp = new Date().getTime();
-    setImageUrl(`http://10.0.0.145:5000/capture?t=${timestamp}`);
+    setImageUrl(`http://10.0.0.146:5000/capture?t=${timestamp}`);
   };
 
   return (

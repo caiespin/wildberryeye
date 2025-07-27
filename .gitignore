@@ -32,3 +32,4 @@ backend/models/*.zip
 # Ignore python virtual environmment files
 .venv
 venv/
+captured/
