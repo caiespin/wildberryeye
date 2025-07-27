@@ -1,4 +1,4 @@
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, request, abort, send_from_directory
 from flask_cors import CORS
 from picamera2 import Picamera2
 import io
@@ -45,7 +45,22 @@ def capture_image():
     except Exception as e:
         return {"error": f"Failed to capture image: {e}"}, 500
 
+@app.route("/download/<filename>")
+def download_image(filename):
+    try:
+        # Security check: prevent directory traversal attacks
+        if ".." in filename or filename.startswith("/"):
+            abort(400, "Invalid filename")
 
+        # Send the file as an attachment to force download
+        return send_from_directory(
+            SAVE_FOLDER,
+            filename,
+            as_attachment=True,
+            mimetype="image/jpeg"
+        )
+    except FileNotFoundError:
+        abort(404, "File not found")
     
 if __name__ == '__main__':
     app.run(host="10.0.0.146", port=5000, debug=False)
