@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const CameraCapture = () => {
+const ImageCapture = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [timestamp, setTimestamp] = useState();
 
@@ -50,4 +50,4 @@ const CameraCapture = () => {
   );
 };
 
-export default CameraCapture;
+export default ImageCapture;

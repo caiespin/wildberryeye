@@ -1,17 +1,18 @@
 import CalendarComp from "./Calendar";
-import CameraCapture from "./CameraCapture";
+import ImageCapture from "./ImageCapture";
+import VideoCapture from "./VideoCapture";
 
 function MainContent({ section }) {
   return (
     <div className="main-content">
       {section === "Get Image" && (
         <div>
-          <CameraCapture />
+          <ImageCapture />
         </div>
       )}
       {section === "Get Video" && (
         <div>
-          <CalendarComp />
+          <VideoCapture />
         </div>
       )}
       {section === "Get Video by on selected time" && (
