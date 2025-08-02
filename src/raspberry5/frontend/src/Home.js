@@ -12,6 +12,15 @@ const logos = [
 
 const Home = () => {
   const [msg, setMsg] = useState("");
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer); // cleanup
+  }, []);
 
   useEffect(() => {
     fetch("/api/hello")
@@ -27,8 +36,8 @@ const Home = () => {
         <h1>Welcome to WildberryEye Platform!</h1>
       </div>
       <div className="liveview">
-        <h1>Live Preview for Bees!</h1>
-        <p>Time:06/22/2025 23:63 </p>
+        <h1>Live Preview for HummingBirds!</h1>
+        <p>Time: {time.toLocaleString()}</p>
         <EmblaCarousel images={logos} />
         <button className="download-button">Download</button>
       </div>
