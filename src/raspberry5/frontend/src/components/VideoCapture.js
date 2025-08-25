@@ -3,10 +3,12 @@ import React, { useState } from "react";
 const VideoCapture = () => {
     const [recording, setRecording] = useState(false);
     const [timestamp, setTimestamp] = useState("");
+    const [videoFile, setVideoFile] = useState(null);
 
     const startRecording = async () => {
         const ts = Date.now();
         setTimestamp(ts);
+        setVideoFile(null); // 👈 Clear any old video
 
         const res = await fetch(`http://10.0.0.146:5000/start_record?t=${ts}`, { method: "POST" });
         const data = await res.json();
@@ -22,12 +24,13 @@ const VideoCapture = () => {
         const res = await fetch("http://10.0.0.146:5000/stop_record", { method: "POST" });
         const data = await res.json();
         if (res.ok) {
-        setRecording(false);
-        console.log(data.message);
+            setRecording(false);
+            console.log(data.message);
+            setVideoFile(`http://10.0.0.146:5000/download/${data.video}`);
         } else {
-        alert(data.error || data.message);
-        }
-    };
+            alert(data.error);
+        };
+    }
 
     return (
         <div style={{ textAlign: "center" }}>
@@ -54,6 +57,16 @@ const VideoCapture = () => {
             >
                 Stop Recording
             </button>
+
+            {videoFile && (
+                <div style={{ marginTop: "2em" }}>
+                    <h3>Recorded Video:</h3>
+                    <video width="640" controls>
+                        <source src={videoFile} type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            )}
 
             {/* <button
                 onClick={downloadVideo}

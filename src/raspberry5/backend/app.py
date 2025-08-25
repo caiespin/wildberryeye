@@ -79,14 +79,22 @@ def download_image(filename):
         # Security check: prevent directory traversal attacks
         if ".." in filename or filename.startswith("/"):
             abort(400, "Invalid filename")
-
+        
+        if not filename.endswith(".jpg"):
+            return send_from_directory(
+                SAVE_FOLDER,
+                filename,
+                as_attachment=True,
+                mimetype="video/mp4"
+            )
+        else:
         # Send the file as an attachment to force download
-        return send_from_directory(
-            SAVE_FOLDER,
-            filename,
-            as_attachment=True,
-            mimetype="image/jpeg"
-        )
+            return send_from_directory(
+                SAVE_FOLDER,
+                filename,
+                as_attachment=True,
+                mimetype="image/jpeg"
+            )
     except FileNotFoundError:
         abort(404, "File not found")
 
@@ -136,7 +144,7 @@ def stop_record():
         picam2.stop()
 
         return jsonify({
-            "message": f"Recording stopped. MP4 available.",
+            "message": f"Recording stopped. MP4 available. and filename: {os.path.basename(mp4_path)}",
             "video": os.path.basename(mp4_path)
         })
     except subprocess.CalledProcessError as e:
