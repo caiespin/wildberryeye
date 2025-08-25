@@ -32,6 +32,17 @@ const VideoCapture = () => {
         };
     }
 
+    const downloadVideo = () => {
+        if (videoFile) {
+            const link = document.createElement("a");
+            link.href = videoFile;
+            link.download = `recorded_video.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
     return (
         <div style={{ textAlign: "center" }}>
             <h1>Raspberry Pi Camera Video</h1>
@@ -65,16 +76,15 @@ const VideoCapture = () => {
                         <source src={videoFile} type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
+                    <button
+                        onClick={downloadVideo}
+                        style={{ marginTop: "1em", padding: "0.5em 1em", marginLeft: "1em" }}
+                        disabled={!timestamp}
+                    >
+                        Download Video
+                    </button>
                 </div>
             )}
-
-            {/* <button
-                onClick={downloadVideo}
-                style={{ marginTop: "1em", padding: "0.5em 1em", marginLeft: "1em" }}
-                disabled={!timestamp}
-            >
-                Download Video
-            </button> */}
         </div>
     )
 }
