@@ -4,7 +4,7 @@ import MainContent from "./components/MainContent";
 import "./App.css";
 
 const Dashboard = () => {
-  const [selectedSection, setSelectedSection] = useState("Bee's Video");
+  const [selectedSection, setSelectedSection] = useState("Get Image");
   return (
     <div className="container">
       <Sidebar onSelect={setSelectedSection} selected={selectedSection} />
