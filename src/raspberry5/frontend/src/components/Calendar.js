@@ -36,18 +36,10 @@ function CalendarComp() {
 
       <h2>Raspberry Pi Camera Stream</h2>
       <img
-        src="http://10.0.0.146:5000/video_feed"
+        src="/images/YOLO.jpg"
         alt="Live Stream"
         style={{ width: "640px", height: "auto", border: "1px solid #ccc" }}
       />
-      <div style={{ marginTop: "1rem" }}>
-        <button onClick={startRecording} disabled={recording}>
-          Start Recording
-        </button>
-        <button onClick={stopRecording} disabled={!recording} style={{ marginLeft: "10px" }}>
-          Stop Recording
-        </button>
-      </div>
     </div>
   );
 }
