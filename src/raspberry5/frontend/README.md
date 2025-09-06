@@ -1,10 +1,10 @@
-# Getting Started with Create React App
+# Getting Started with WildberryEye(Raspberry PI5) Interface.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project contained both the frontend and backend development.
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the frontend directory, you can run:
 
 ### `npm start`
 
