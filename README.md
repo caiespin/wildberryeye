@@ -58,11 +58,23 @@ For issues or questions, contact the authors or open an issue in the project rep
 The system has been tested in a controlled lab environment and supports both object and motion detection modes. Software reliability, power usage, and inference behavior have been evaluated using simulated workloads and scheduled image capture. Field deployment is planned as a next phase.
 
 ## Authors and Acknowledgment
-Isaac Espinosa, Sage Silberman, Teodor Langan  
+Isaac Espinosa, Sage Silberman, Teodor Langan, Sophie Tao  
 With thanks to Rossana Maguiña for the original dataset and inspiration
 
 ## How to Contribute
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Google Summer of Code (GSoC) 2025
+This project included a GSoC 2025 contribution by Sophie Tao, who developed the new web interface for the Raspberry Pi 5 version of WildBerryEye.\
+Mentor: Isaac Espinosa Contributor: Sophie Tao\
+Her work focused on:
+- Building a React-based frontend with pages for live preview, dashboard, and contact.
+- Adding image capture, video recording, and download features.
+- Integrating with the Flask backend using REST API and SocketIO for real-time updates.
+- Providing setup and usage instructions. (Link: [WildberryEye5](https://github.com/caiespin/wildberryeye/tree/main/src/raspberry5))
+
+This contribution improves accessibility and usability of WildBerryEye, making it easier for researchers and contributors to interact with the system. In the future, she would explore more features in integrating a Machine Learning model(YOLOv11) into the image processing and video processing on the interface.
+
 
 ## License
 This project is licensed under the **MIT License**.
