@@ -1,5 +1,5 @@
 function Sidebar({ onSelect, selected }) {
-  const sections = ["Bee's Video", "Bird's Video", "Data Analytics"];
+  const sections = ["Get Image", "Get Video", "Get Video by on selected time"];
 
   return (
     <nav className="sidebar">

@@ -1,15 +1,25 @@
 import CalendarComp from "./Calendar";
+import ImageCapture from "./ImageCapture";
+import VideoCapture from "./VideoCapture";
 
 function MainContent({ section }) {
   return (
     <div className="main-content">
-      {section === "Bee's Video" && (
+      {section === "Get Image" && (
+        <div>
+          <ImageCapture />
+        </div>
+      )}
+      {section === "Get Video" && (
+        <div>
+          <VideoCapture />
+        </div>
+      )}
+      {section === "Get Video by on selected time" && (
         <div>
           <CalendarComp />
         </div>
       )}
-      {section === "Bird's Video" && <h2>Show Video</h2>}
-      {section === "Data Analytics" && <h2>Data Analytics</h2>}
     </div>
   );
 }
