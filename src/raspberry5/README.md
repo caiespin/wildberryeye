@@ -1,5 +1,9 @@
 # WildBerryEye
-This project contains both frontend and backend. The user should open two terminals for running frontend and backend seperately.
+This project contains both frontend and backend for integration with a raspberry pi5 device. This is future work and not what is described in *Characterizing Motion and On-Sensor Object Detection Tradeoffs in Low-Power Embedded
+Visual Sensing*. To see the software described there please refer to the wildberryeyezero directory in the src directory.
+
+The user should open two terminals for running frontend and backend seperately.
+
 ## In the Backend
 - Create your venv with system packages enabled:
 ` $ python3 -m venv --system-site-packages venv `
